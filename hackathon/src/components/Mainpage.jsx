@@ -4,7 +4,8 @@ function Mainpage() {
   const [notes, setNotes] = useState([]);
   const [theme, setTheme] = useState('');
   const [answer, setAnswer] = useState('');
-
+  const [showVideo, setShowVideo] = useState(false);
+  
   const handleSubmit = () => {
     if (theme && answer) {
       const newNote = { theme, answer };
@@ -14,7 +15,12 @@ function Mainpage() {
       setAnswer('');
     }
   };
-
+  
+  const toggleVideo = (e) => {
+    e.preventDefault();
+    setShowVideo(!showVideo);
+  };
+  
   return (
     <div style={{ display: 'flex', height: '100vh', fontFamily: 'Arial', color: '#fff' }}>
       {/* Left Panel - Resources */}
@@ -22,16 +28,37 @@ function Mainpage() {
         <h2>Resources</h2>
         <ul style={{ lineHeight: '2rem' }}>
           <li><a href="#" style={{ color: '#61dafb' }}>Lecture Slides (PDF)</a></li>
-          <li><a href="#" style={{ color: '#61dafb' }}>YouTube Video</a></li>
+          <li>
+            <a 
+              href="#" 
+              onClick={toggleVideo} 
+              style={{ color: '#61dafb' }}
+            >
+              YouTube Video {showVideo ? '(Hide)' : '(Show)'}
+            </a>
+            {showVideo && (
+              <div style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
+                <iframe 
+                  width="100%" 
+                  height="200" 
+                  src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                  title="YouTube Video"
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen
+                />
+              </div>
+            )}
+          </li>
           <li><a href="#" style={{ color: '#61dafb' }}>Code Example (.py)</a></li>
           <li><a href="#" style={{ color: '#61dafb' }}>Summary Document</a></li>
         </ul>
       </div>
-
+      
       {/* Right Panel - Cornell Note Taking */}
       <div style={{ flex: 1.5, backgroundColor: '#1e1e1e', padding: '2rem', overflowY: 'auto' }}>
         <h2>Cornell Notes</h2>
-
+        
         {/* Note Input */}
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
           <input
@@ -48,13 +75,14 @@ function Mainpage() {
             style={{ flex: 2, padding: '0.75rem', height: '150px', borderRadius: '8px', border: 'none' }}
           />
         </div>
+        
         <button
           onClick={handleSubmit}
           style={{ marginBottom: '2rem', padding: '0.5rem 1rem', backgroundColor: '#61dafb', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
         >
           Submit Note
         </button>
-
+        
         {/* Display Submitted Notes */}
         <div>
           <h3>Submitted Notes</h3>
