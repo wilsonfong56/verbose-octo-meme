@@ -98,10 +98,9 @@ function CornellNotesApp() {
         // Filter notes belonging to the current user
         const userNotes = result.class_notes
           .filter(note => note.name === name)
-          .sort((a, b) => new Date(a.date) - new Date(b.date)); // sort by date if needed
-  
+
         const extractedNotes = userNotes.map(n => n.Notebook);
-  
+        console.log("Notes: ", extractedNotes)
         // Add a blank one at the end
         extractedNotes.push({ entries: [{ cue: '', content: '' }] });
   
