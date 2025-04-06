@@ -12,6 +12,7 @@ app.secret_key = "some-secret-key"
 CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
 
 uri = os.getenv("MONGODB_URI")
+print(uri)
 client = MongoClient(uri, server_api=ServerApi('1'))
 try:
     db = client["test"]
@@ -35,23 +36,34 @@ def getUser():
 @app.route("/signin", methods = ["GET", "POST"])
 def login():
 
-    if request.is_json:
-        data = request.get_json()
-        email = data.get('email')
-        role = data.get('role')
+    if request.method == "POST":
+        if request.is_json:
+            try:
+                data = request.get_json()
+                print(f"Received JSON: {data}")
+                
+                email = data.get('email')
+                role = data.get('role')
 
-        if email and role:
-            session['email'] = email
-            session['role'] = role
-            user_exists = user_collection.find_one({"email": email})
-            if not user_exists:
-                user = {
-                    "email": email,
-                    "role": role
-                }
-                user_collection.insert_one(user)
-            return jsonify({"success": True}), 200
+                if email and role:
+                    session['email'] = email
+                    session['role'] = role
 
+                    user_exists = user_collection.find_one({"email": email})
+                    if not user_exists:
+                        user = {
+                            "email": email,
+                            "role": role
+                        }
+                        user_collection.insert_one(user)
+
+                    return jsonify({"success": True}), 200
+                else:
+                    return jsonify({"success": False, "error": "Missing email or role"}), 400
+
+            except Exception as e:
+                print(f"Error during login: {e}")
+                return jsonify({"success": False, "error": "Internal server error"}), 500
         else:
             return jsonify({"success": False, "error": "Content-Type must be application/json"}), 415
 
