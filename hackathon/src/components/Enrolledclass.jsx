@@ -6,6 +6,9 @@ function EnrolledClass() {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('');
 
+  const [newCourseName, setNewCourseName] = useState('');
+  const [showAddCourse, setShowAddCourse] = useState(false);
+
   const classes = [
     { name: 'CS601', link: '/mainpage' },
     { name: 'CS686', link: '/cs686' },
@@ -72,6 +75,51 @@ function EnrolledClass() {
             Logout
             </button>
       </div>
+
+      {role === "teacher" && (
+        <div className="mb-6">
+          <button
+            onClick={() => setShowAddCourse(true)}
+            className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded"
+          >
+          Add Course
+          </button>
+
+          {showAddCourse && (
+            <div className="mt-4">
+              <input
+                type="text"
+                placeholder="Course Name (e.g. CS687)"
+                value={newCourseName}
+                onChange={(e) => setNewCourseName(e.target.value)}
+                className="px-3 py-2 border border-gray-400 rounded text-black"
+              />
+              <button
+                onClick={() => {
+                  if (newCourseName.trim() !== '') {
+                    setClasses([...classes, { name: newCourseName.trim(), link: '/mainpage' }]);
+                    setNewCourseName('');
+                    setShowAddCourse(false);
+                  }
+                }}
+                className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
+                >
+                Save
+              </button>
+              <button
+                  onClick={() => {
+                    setNewCourseName('');
+                    setShowAddCourse(false);
+                  }}
+                  className="ml-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded"
+              >
+              Cancel
+              </button>
+          </div>
+          )}
+          </div>
+        )}
+
       
       <h2 style={{ marginBottom: '2rem', fontSize: '2rem' }}>Class Enrolled</h2>
       <ul style={{ listStyle: 'none', padding: 0 }}>
