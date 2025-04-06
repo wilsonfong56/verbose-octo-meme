@@ -1,17 +1,36 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, request, redirect, url_for, session, jsonify
 from dotenv import load_dotenv
 from flask_cors import CORS
 import os
-from flask_sqlalchemy import SQLAlchemy
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = "some-secret-key"
-db = SQLAlchemy()
 CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
-#app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("SQLALCHEMY_DATABASE_URI")
-#db.init_app(app)
+
+uri = os.getenv("MONGODB_URI")
+client = MongoClient(uri, server_api=ServerApi('1'))
+try:
+    db = client["test"]
+    user_collection = db["users"]
+    notes_collection = db["notes"]
+except Exception as e:
+    print(e)
+
+def getUserbyEmail(email):
+    result = user_collection.find_one({"email": email})
+    return result
+
+@app.route("/getUser", methods = ["POST"])
+def getUser():
+    data = request.json
+    email = data.get("email")
+
+    user = getUserbyEmail(email)
+    return jsonify(name=user['name'], role=user['role'])
 
 @app.route("/signin", methods = ["GET", "POST"])
 def login():
@@ -24,12 +43,16 @@ def login():
         if email and role:
             session['email'] = email
             session['role'] = role
+            user = {
+                "email": email,
+                "role": role
+            }
+            user_collection.insert_one(user)
             return jsonify({"success": True}), 200
 
         else:
             return jsonify({"success": False, "error": "Content-Type must be application/json"}), 415
-            #return jsonify({"success": False, "error": "Missing email or role"}), 400
-    
+
 
     
     return "<p>Login page (used by frontend)</p>", 200
@@ -48,19 +71,40 @@ def main():
     })
 
 
-@app.route("/addnotes", methods=["POST"])
-def add_note():
-    global next_id
-    title = request.form.get("title").strip()
-    content = request.form.get("content").strip()
-    if title and content:
-        notes.append({"id": next_id, "title": title, "content": content})
-        next_id += 1
-    elif title and content == "":
-        notes.append({"id": next_id, "title": title, "content": "Empty content"})
-        next_id += 1
+@app.route("/addNote", methods = ["POST"])
+def addNote():
+    data = request.json
+    name = data.get("name")
+    lecture = data.get("lecture")
+    date = data.get("date")
+    notebook = data.get("notebook") # json obj with topic and notes
 
-    return redirect(url_for("index"))
+    student_notebook = {
+        "name": name,
+        "Notebook": notebook
+    }
+
+    lecture_exists = notes_collection.find_one(
+        {
+            "lecture": lecture,
+            "date": date
+        }
+    )
+
+    if not lecture_exists:
+        new_lecture = {
+            "lecture": lecture,
+            "date": date,
+            "class_notes": [student_notebook]
+        }
+        notes_collection.insert_one(new_lecture)
+    else:
+        notes_collection.update_one(
+            {"lecture": lecture, "date": date},
+            { "$push": {"class_notes": student_notebook}}
+        )
+    return jsonify(message="Note added successfully")
+
 
 @app.route("/delete/<int:note_id>", methods=["POST"])
 def delete_note(note_id):
