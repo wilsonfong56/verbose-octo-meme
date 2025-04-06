@@ -75,7 +75,7 @@ function CornellNotesApp() {
   useEffect(() => {
     const fetchAllNotes = async () => {
       try {
-        const userRes = await fetch("http://localhost:5000/getUser", {
+        const userRes = await fetch("http://localhost:5050/getUser", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -84,7 +84,7 @@ function CornellNotesApp() {
         const userData = await userRes.json();
         const name = userData.name;
 
-        const notesRes = await fetch("http://localhost:5000/getNote", {
+        const notesRes = await fetch("http://localhost:5050/getNote", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -193,7 +193,7 @@ function CornellNotesApp() {
     }
 
     try {
-      const userRes = await fetch("http://localhost:5000/getUser", {
+      const userRes = await fetch("http://localhost:5050/getUser", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -202,7 +202,7 @@ function CornellNotesApp() {
       const userData = await userRes.json();
       const name = userData.name;
 
-      const res = await fetch("http://localhost:5000/addNote", {
+      const res = await fetch("http://localhost:5050/addNote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

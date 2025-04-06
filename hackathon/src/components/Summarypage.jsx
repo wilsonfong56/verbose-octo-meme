@@ -417,7 +417,39 @@ function Summarypage() {
                     transition: 'background-color 0.2s ease'
                   }}
                 />
-                <TextToSpeech string={entry.cue} />
+                {/* Sound icon for Text-to-Speech */}
+                <div 
+                  onClick={() => {
+                    // Directly use the TextToSpeech component's functionality
+                    const speechSynthesis = window.speechSynthesis;
+                    const utterance = new SpeechSynthesisUtterance(entry.cue);
+                    speechSynthesis.speak(utterance);
+                  }}
+                  style={{
+                    position: 'absolute',
+                    bottom: '10px',
+                    right: '10px',
+                    cursor: 'pointer',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    padding: '5px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: 0.7,
+                    transition: 'opacity 0.2s ease-in-out'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.opacity = 1}
+                  onMouseOut={(e) => e.currentTarget.style.opacity = 0.7}
+                  title="Text to Speech"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#61dafb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                  </svg>
+                </div>
               </div>
               
               {/* Content Cell */}
@@ -451,7 +483,39 @@ function Summarypage() {
                     transition: 'background-color 0.2s ease'
                   }}
                 />
-                <TextToSpeech string={entry.content} />
+                {/* Sound icon for Text-to-Speech */}
+                <div 
+                  onClick={() => {
+                    // Directly use the TextToSpeech component's functionality
+                    const speechSynthesis = window.speechSynthesis;
+                    const utterance = new SpeechSynthesisUtterance(entry.content);
+                    speechSynthesis.speak(utterance);
+                  }}
+                  style={{
+                    position: 'absolute',
+                    bottom: '10px',
+                    right: '10px',
+                    cursor: 'pointer',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    padding: '5px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: 0.7,
+                    transition: 'opacity 0.2s ease-in-out'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.opacity = 1}
+                  onMouseOut={(e) => e.currentTarget.style.opacity = 0.7}
+                  title="Text to Speech"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#61dafb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                  </svg>
+                </div>
               </div>
             </div>
           ))}
