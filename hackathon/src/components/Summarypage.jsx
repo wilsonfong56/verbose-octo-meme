@@ -15,6 +15,7 @@ function Summarypage() {
   const [isEditing, setIsEditing] = useState(false);
   const [pdfUrl, setPdfUrl] = useState('/lecture28-intro-to-react.pdf');
   const [currentPdfPage, setCurrentPdfPage] = useState(1); // Store current PDF page
+  const [textSize, setTextSize] = useState(16); // Default text size in pixels
   
   // State for the resizable panels
   const [leftPanelWidth, setLeftPanelWidth] = useState(30); // Initial percentage
@@ -380,9 +381,41 @@ function Summarypage() {
         {/* Cornell Note Layout - Aligned Entries */}
         <div style={{ marginBottom: '1rem', border: '1px solid #555', borderRadius: '8px', overflow: 'hidden' }}>
           {/* Header */}
-          <div style={{ display: 'flex', background: '#444', padding: '0.5rem' }}>
+          <div style={{ display: 'flex', background: '#444', padding: '0.5rem', alignItems: 'center' }}>
             <div style={{ flex: 1, fontWeight: 'bold', padding: '0.5rem', borderRight: '1px solid #555', minWidth: '33%', maxWidth: '33%', marginRight: '4px' }}>Topic</div>
-            <div style={{ flex: 2, fontWeight: 'bold', padding: '0.5rem', minWidth: '65%', maxWidth: '65%', marginLeft: '4px' }}>Notes</div>
+            <div style={{ flex: 2, fontWeight: 'bold', padding: '0.5rem', minWidth: '50%', maxWidth: '50%', marginLeft: '4px' }}>Notes</div>
+            <div style={{ 
+              display: 'flex', 
+              gap: '8px', 
+              alignItems: 'center', 
+              marginLeft: 'auto',
+              paddingRight: '10px'
+            }}>
+              <button
+                onClick={() => setTextSize(prev => Math.min(prev + 2, 28))}  
+                style={{ 
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: '#2a2a2a', 
+                  border: '1px solid #61dafb',
+                  color: '#61dafb',
+                  borderRadius: '4px',
+                  padding: '4px 8px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  transition: 'background-color 0.2s ease'
+                }}
+                title="Increase text size"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#61dafb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px' }}>
+                  <path d="M7 20h10"></path>
+                  <path d="M10 4L12 4 14 4"></path>
+                  <path d="M12 4L12 20"></path>
+                </svg>
+                Aa+
+              </button>
+            </div>
           </div>
           
           {/* Entries */}
@@ -414,7 +447,8 @@ function Summarypage() {
                     resize: 'none',
                     flex: '1',
                     outline: 'none',
-                    transition: 'background-color 0.2s ease'
+                    fontSize: `${textSize}px`,
+                    transition: 'background-color 0.2s ease, font-size 0.2s ease'
                   }}
                 />
                 {/* Sound icon for Text-to-Speech */}
@@ -479,8 +513,9 @@ function Summarypage() {
                     flex: '1',
                     outline: 'none',
                     lineHeight: '1.5',
+                    fontSize: `${textSize}px`,
                     fontFamily: 'Arial, sans-serif',
-                    transition: 'background-color 0.2s ease'
+                    transition: 'background-color 0.2s ease, font-size 0.2s ease'
                   }}
                 />
                 {/* Sound icon for Text-to-Speech */}
