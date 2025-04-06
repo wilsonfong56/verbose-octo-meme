@@ -7,8 +7,9 @@ from flask_sqlalchemy import SQLAlchemy
 load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = "some-secret-key"
 db = SQLAlchemy()
-CORS(app, origins=["http://localhost:5173"])
+CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
 #app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("SQLALCHEMY_DATABASE_URI")
 #db.init_app(app)
 
@@ -34,7 +35,7 @@ def login():
     return "<p>Login page (used by frontend)</p>", 200
 
 
-@app.route("/main", methods = ["GET"])
+@app.route("/classlists", methods = ["GET"])
 def main():
     email = session.get('email')
     role = session.get('role')
@@ -43,8 +44,7 @@ def main():
     
     return jsonify({
         "email": email,
-        "role": role,
-        "notes": notes
+        "role": role
     })
 
 

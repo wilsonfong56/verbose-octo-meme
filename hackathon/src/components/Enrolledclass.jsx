@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function EnrolledClass() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState('');
+
   const classes = [
     { name: 'CS601', link: '/mainpage' },
     { name: 'CS686', link: '/cs686' },
@@ -16,6 +19,26 @@ function EnrolledClass() {
 
   const [openClass, setOpenClass] = useState(null);
 
+  useEffect(() => {
+    fetch("http://localhost:5000/classlists", {
+      method: "GET",
+      credentials: "include", // important for sending cookies
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.error) {
+          console.warn("Unauthorized or no session");
+        } else {
+          setEmail(data.email);
+          setRole(data.role);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch session info:", err);
+      });
+  }, []);
+
+  
   const toggleClass = (name) => {
     setOpenClass(prev => (prev === name ? null : name));
   };
@@ -26,6 +49,9 @@ function EnrolledClass() {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#1e1e1e', color: '#fff', fontFamily: 'Arial', padding: '2rem' }}>
+      <h1 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Email: {email}</h1>
+      <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>Role: {role}</h2>
+      
       <h2 style={{ marginBottom: '2rem', fontSize: '2rem' }}>Class Enrolled</h2>
       <ul style={{ listStyle: 'none', padding: 0 }}>
         {classes.map((cls, idx) => (

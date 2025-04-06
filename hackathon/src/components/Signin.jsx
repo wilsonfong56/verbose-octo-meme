@@ -25,7 +25,7 @@ const Signin = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        window.location.href = "http://localhost:5000/main"; // navigate on success
+        window.location.href = "http://localhost:5173/classlists"; // navigate on success
       } else {
         alert(data.error || "Login failed");
       }
