@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import TextToSpeech from "./TextToSpeech.jsx";
 
 function Summarypage() {
   const [notes, setNotes] = useState([]);
@@ -449,6 +450,7 @@ function Summarypage() {
                     transition: 'background-color 0.2s ease'
                   }}
                 />
+                <TextToSpeech string={entry.content} />
               </div>
             </div>
           ))}
