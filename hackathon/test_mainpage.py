@@ -22,16 +22,23 @@ except Exception as e:
     print(e)
 
 def getUserbyEmail(email):
+    print("Getting from user DB: ", email)
     result = user_collection.find_one({"email": email})
     return result
 
 @app.route("/getUser", methods = ["POST"])
 def getUser():
     data = request.json
-    email = data.get("email")
+    email = data.get("email") or session.get("email")
+
+    if not email:
+        return jsonify({"error": "Email not provided"}), 400
 
     user = getUserbyEmail(email)
-    return jsonify(name=user['name'], role=user['role'])
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    
+    return jsonify(name=user['email'], role=user['role'])
 
 @app.route("/signin", methods = ["GET", "POST"])
 def login():
@@ -83,6 +90,32 @@ def main():
         "email": email,
         "role": role
     })
+
+@app.route("/getNote", methods=["POST"])
+def get_note():
+    data = request.json
+    lecture = data.get("lecture")
+    date = data.get("date")
+
+    if not lecture or not date:
+        return jsonify({"error": "Missing lecture or date"}), 400
+
+    try:
+        lecture_doc = notes_collection.find_one({
+            "lecture": lecture,
+            "date": date
+        })
+
+        if not lecture_doc:
+            return jsonify({"class_notes": []})
+
+        return jsonify({
+            "class_notes": lecture_doc.get("class_notes", [])
+        })
+
+    except Exception as e:
+        print(f"Error fetching notes: {e}")
+        return jsonify({"error": "Server error"}), 500
 
 
 @app.route("/addNote", methods = ["POST"])

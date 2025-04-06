@@ -61,6 +61,62 @@ function CornellNotesApp() {
     }
   };
 
+
+  useEffect(() => {
+    const fetchAllNotes = async () => {
+      try {
+        // Get session user's name
+        const userRes = await fetch("http://localhost:5000/getUser", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include",
+          body: JSON.stringify({ email: "" })  // session handles user
+        });
+  
+        const userData = await userRes.json();
+        const name = userData.name;
+  
+        // Fetch all notes for this lecture + date
+        const notesRes = await fetch("http://localhost:5000/getNote", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            lecture: classname,
+            date: date
+          })
+        });
+  
+        const result = await notesRes.json();
+  
+        if (!result || !Array.isArray(result.class_notes)) return;
+  
+        // Filter notes belonging to the current user
+        const userNotes = result.class_notes
+          .filter(note => note.name === name)
+          .sort((a, b) => new Date(a.date) - new Date(b.date)); // sort by date if needed
+  
+        const extractedNotes = userNotes.map(n => n.Notebook);
+  
+        // Add a blank one at the end
+        extractedNotes.push({ entries: [{ cue: '', content: '' }] });
+  
+        setNotes(extractedNotes);
+        setCurrentNote(extractedNotes[extractedNotes.length - 1]);  // Set last as active
+      } catch (err) {
+        console.error("Failed to load notes:", err);
+      }
+    };
+  
+    if (classname && date) {
+      fetchAllNotes();
+    }
+  }, [classname, date]);
+
   // Helper function to handle content when displaying in textarea
   const processContentForDisplay = (content) => {
     if (!content) return '';
