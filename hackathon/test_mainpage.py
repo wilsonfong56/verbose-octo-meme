@@ -9,7 +9,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = "some-secret-key"
-CORS(app, supports_credentials=True, origins=["http://localhost:5174"])
+CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
 
 uri = os.getenv("MONGODB_URI")
 print(uri)
