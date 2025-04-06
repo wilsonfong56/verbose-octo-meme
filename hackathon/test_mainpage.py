@@ -43,11 +43,13 @@ def login():
         if email and role:
             session['email'] = email
             session['role'] = role
-            user = {
-                "email": email,
-                "role": role
-            }
-            user_collection.insert_one(user)
+            user_exists = user_collection.find_one({"email": email})
+            if not user_exists:
+                user = {
+                    "email": email,
+                    "role": role
+                }
+                user_collection.insert_one(user)
             return jsonify({"success": True}), 200
 
         else:
