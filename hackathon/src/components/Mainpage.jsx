@@ -464,7 +464,7 @@ function CornellNotesApp() {
           </div>
           
           <div style={{ marginBottom: '1rem' }}>
-            <a href="#" style={{ color: '#61dafb', display: 'block' }}>Summary Document</a>
+            <a href={`${window.location.href.split('#')[0]}/summary`} style={{ color: '#61dafb', display: 'block' }}>Summary</a>
           </div>
         </div>
       </div>

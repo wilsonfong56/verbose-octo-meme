@@ -4,6 +4,7 @@ import Signup from "./components/Signup.jsx";
 import Signin from "./components/Signin.jsx";
 import Mainpage from "./components/Mainpage.jsx";
 import EnrolledClass from "./components/Enrolledclass.jsx";
+import Summarypage from "./components/Summarypage.jsx";
 
 export const router = createBrowserRouter( [
     { path: "/", element: <App /> },
@@ -11,4 +12,5 @@ export const router = createBrowserRouter( [
     { path: "/signin", element: <Signin/> },
     { path: "/mainpage/:classname/:date", element: <Mainpage/> },
     { path: "/classlists", element: <EnrolledClass/> },
+    { path: "/mainpage/:classname/:date/summary", element: <Summarypage/> },
 ])

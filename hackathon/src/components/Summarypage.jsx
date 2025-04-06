@@ -403,7 +403,7 @@ function Summarypage() {
           </div>
           
           <div style={{ marginBottom: '1rem' }}>
-            <a href="#" style={{ color: '#61dafb', display: 'block' }}>Summary Document</a>
+            <a href={window.location.href.replace(/\/summary$/, '')}  style={{ color: '#61dafb', display: 'block' }}>Lecture Notes</a>
           </div>
         </div>
       </div>
