@@ -23,7 +23,7 @@ function EnrolledClass() {
   const [openClass, setOpenClass] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:5000/classlists", {
+    fetch("http://localhost:5050/classlists", {
       method: "GET",
       credentials: "include", // important for sending cookies
     })
@@ -52,7 +52,7 @@ function EnrolledClass() {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost:5000/logout", {
+      await fetch("http://localhost:5050/logout", {
         method: "POST",
         credentials: "include",
       });
