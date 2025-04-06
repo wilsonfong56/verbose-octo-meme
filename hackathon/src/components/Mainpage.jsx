@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 
 function CornellNotesApp() {
   const [notes, setNotes] = useState([]);
+  const [loadedNotes, setLoadedNotes] = useState([]);
   const [currentNote, setCurrentNote] = useState({
     entries: [{ cue: '', content: '' }]
   });
@@ -25,6 +26,15 @@ function CornellNotesApp() {
   const params = useParams();
   const classname = params?.classname;
   const date = params?.date;
+
+  const normalizeContent = (content) => {
+    return content
+      .split('\n')
+      .map(line => line.trim().replace(/^•\s*/, ''))
+      .filter(line => line.length > 0)
+      .join('\n')
+      .trim();
+  };
 
   // Function to handle key events in the content textarea
   const handleContentKeyDown = (e, index) => {
@@ -65,61 +75,38 @@ function CornellNotesApp() {
   useEffect(() => {
     const fetchAllNotes = async () => {
       try {
-        // Get session user's name
-        const userRes = await fetch("http://localhost:5050/getUser", {
+        const userRes = await fetch("http://localhost:5000/getUser", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ email: "" })  // session handles user
+          body: JSON.stringify({ email: "" })
         });
-  
         const userData = await userRes.json();
         const name = userData.name;
-  
-        // Fetch all notes for this lecture + date
-        const notesRes = await fetch("http://localhost:5050/getNote", {
+
+        const notesRes = await fetch("http://localhost:5000/getNote", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({
-            lecture: classname,
-            date: date
-          })
+          body: JSON.stringify({ lecture: classname, date: date })
         });
-  
         const result = await notesRes.json();
-  
         if (!result || !Array.isArray(result.class_notes)) return;
 
-        // Filter notes belonging to the current user
-        const userNotes = result.class_notes
-          .filter(note => note.name === name)
+        const userNotes = result.class_notes.filter(note => note.name === name);
+        const extractedNotes = userNotes.map(n => n.Notebook).flat().map(n => ({
+          cue: n.topic,
+          content: n.notes.join('\n')
+        }));
 
-        const extractedNotes = userNotes.map(n => n.Notebook);
-        console.log("Extracted Notes: ", extractedNotes)
-
-        const notes = extractedNotes
-            .flat()
-            .map(n => ({
-              cue: n.topic,
-              content: n.notes.join('\n'),
-            }));
-
-        console.log("Notes: ", notes)
-        setCurrentNote({entries: notes})
-
+        setLoadedNotes(extractedNotes);
+        setCurrentNote({ entries: extractedNotes.length > 0 ? extractedNotes : [{ cue: '', content: '' }] });
       } catch (err) {
         console.error("Failed to load notes:", err);
       }
     };
-  
-    if (classname && date) {
-      fetchAllNotes();
-    }
+
+    if (classname && date) fetchAllNotes();
   }, [classname, date]);
 
   // Helper function to handle content when displaying in textarea
@@ -186,26 +173,64 @@ function CornellNotesApp() {
     }
   };
 
-  const saveNote = () => {
-    if (currentNote.entries.some(entry => entry.cue || entry.content)) {
-      if (isEditing && activeNoteIndex !== null) {
-        // Update existing note
-        const updatedNotes = [...notes];
-        updatedNotes[activeNoteIndex] = currentNote;
-        setNotes(updatedNotes);
-        setIsEditing(false);
-      } else {
-        // Add new note
-        setNotes([...notes, currentNote]);
-      }
-      
-      // Reset form
-      setCurrentNote({
-        entries: [{ cue: '', content: '' }]
+  const saveNote = async () => {
+    const nonEmptyEntries = currentNote.entries.filter(entry => entry.cue || entry.content);
+
+    const isNewEntry = (entry) => {
+      const cue = entry.cue.trim();
+      const content = normalizeContent(entry.content);
+      return !loadedNotes.some(
+        (loaded) =>
+          loaded.cue.trim() === cue &&
+          normalizeContent(loaded.content) === content
+      );
+    };
+
+    const newEntries = nonEmptyEntries.filter(isNewEntry);
+    if (newEntries.length === 0) {
+      alert("No new notes to save");
+      return;
+    }
+
+    try {
+      const userRes = await fetch("http://localhost:5000/getUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email: "" })
       });
+      const userData = await userRes.json();
+      const name = userData.name;
+
+      const res = await fetch("http://localhost:5000/addNote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name,
+          lecture: classname,
+          date: date,
+          notebook: newEntries.map(entry => ({
+            topic: entry.cue,
+            notes: entry.content
+              .split('\n')
+              .filter(line => line.trim() !== '')
+          }))
+        })
+      });
+
+      if (!res.ok) throw new Error("Failed to save note");
+      alert("New notes saved to database");
+      setLoadedNotes([...loadedNotes, ...newEntries]);
+      setCurrentNote({ entries: [{ cue: '', content: '' }] });
+      setIsEditing(false);
       setActiveNoteIndex(null);
+    } catch (err) {
+      console.error("Save failed:", err);
+      alert("Failed to save notes. See console for details.");
     }
   };
+  
 
   const editNote = (index) => {
     setCurrentNote(notes[index]);
