@@ -47,10 +47,31 @@ function EnrolledClass() {
     navigate(`/mainpage/${className}/${date}`);
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch("http://localhost:5000/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      window.location.href = "/signin";
+    } catch (err) {
+      alert("Failed to logout");
+    }
+  };
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#1e1e1e', color: '#fff', fontFamily: 'Arial', padding: '2rem' }}>
       <h1 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Email: {email}</h1>
       <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>Role: {role}</h2>
+
+      <div className="flex justify-between items-center mb-4">
+            <button
+            onClick={handleLogout}
+            className="text-sm bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+            >
+            Logout
+            </button>
+      </div>
       
       <h2 style={{ marginBottom: '2rem', fontSize: '2rem' }}>Class Enrolled</h2>
       <ul style={{ listStyle: 'none', padding: 0 }}>

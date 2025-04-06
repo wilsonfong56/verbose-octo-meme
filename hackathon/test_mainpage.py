@@ -107,17 +107,12 @@ def addNote():
         )
     return jsonify(message="Note added successfully")
 
+@app.route("/logout", methods=["POST"])
+def logout():
+    session.clear()
+    return jsonify({"success": True}), 200
 
-@app.route("/delete/<int:note_id>", methods=["POST"])
-def delete_note(note_id):
-    global notes
-    notes = [note for note in notes if note["id"] != note_id]
-    return redirect(url_for("index"))
 
-@app.route("/edit/<int:note_id>", methods=["POST"])
-def edit_note(note_id):
-    global notes
-    notes = [note for note in notes if note["id"] != note_id]
 
 if __name__ == "__main__":
     app.run(debug=True)
