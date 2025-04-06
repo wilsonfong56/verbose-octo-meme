@@ -5,9 +5,35 @@ const Signin = () => {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("student");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     // Handle login logic here
+
+    try{
+      const response = await fetch("http://localhost:5000/signin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", //for sending session cookies
+        body: JSON.stringify({
+          email,
+          role,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        window.location.href = "http://localhost:5000/main"; // navigate on success
+      } else {
+        alert(data.error || "Login failed");
+      }
+    }
+    catch (error) {
+      console.error("Login error:", error);
+      alert("Something went wrong");
+    }
   }
 
   return (
