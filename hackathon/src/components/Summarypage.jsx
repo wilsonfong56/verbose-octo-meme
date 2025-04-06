@@ -417,6 +417,7 @@ function Summarypage() {
                     transition: 'background-color 0.2s ease'
                   }}
                 />
+                <TextToSpeech string={entry.cue} />
               </div>
               
               {/* Content Cell */}
