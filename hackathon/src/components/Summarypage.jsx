@@ -61,6 +61,47 @@ function Summarypage() {
     }
   };
 
+  useEffect(() => {
+    const fetchAllNotes = async () => {
+      try {
+
+        // Fetch all notes for this lecture + date
+        const notesRes = await fetch("http://localhost:5050/getSummary", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            lecture: classname,
+            date: date
+          })
+        });
+
+        const result = await notesRes.json();
+
+        if (!result) return;
+
+        console.log("Result:", result)
+        const notebookData = result.data.Notebooks
+        const notes = notebookData.map(n => ({
+          cue: n.topic,
+          content: n.notes.join('\n'),
+        }));
+
+        console.log(notes);
+        setCurrentNote({entries: notes})
+
+      } catch (err) {
+        console.error("Failed to load notes:", err);
+      }
+    };
+
+    if (classname && date) {
+      fetchAllNotes();
+    }
+  }, [classname, date]);
+
   // Helper function to handle content when displaying in textarea
   const processContentForDisplay = (content) => {
     if (!content) return '';
@@ -74,88 +115,6 @@ function Summarypage() {
     return content;
   };
 
-  const handleEntryChange = (index, field, value) => {
-    const updatedEntries = [...currentNote.entries];
-    
-    // Special handling for content field to add bullet points
-    if (field === 'content') {
-      // Process the text for bullet points
-      const lines = value.split('\n');
-      const formattedLines = lines.map(line => {
-        // Skip empty lines or already bulleted lines
-        if (line.trim() === '' || line.trim().startsWith('• ')) {
-          return line;
-        }
-        // Add bullet point to the beginning of each line
-        return line.startsWith('• ') ? line : '• ' + line;
-      });
-      
-      updatedEntries[index] = {
-        ...updatedEntries[index],
-        [field]: formattedLines.join('\n')
-      };
-    } else {
-      // Normal handling for other fields
-      updatedEntries[index] = {
-        ...updatedEntries[index],
-        [field]: value
-      };
-    }
-    
-    setCurrentNote({
-      ...currentNote,
-      entries: updatedEntries
-    });
-  };
-
-  const addNewEntry = () => {
-    setCurrentNote({
-      ...currentNote,
-      entries: [...currentNote.entries, { cue: '', content: '' }]
-    });
-  };
-
-  const removeEntry = (index) => {
-    if (currentNote.entries.length > 1) {
-      const updatedEntries = currentNote.entries.filter((_, i) => i !== index);
-      setCurrentNote({
-        ...currentNote,
-        entries: updatedEntries
-      });
-    }
-  };
-
-  const saveNote = () => {
-    if (currentNote.entries.some(entry => entry.cue || entry.content)) {
-      if (isEditing && activeNoteIndex !== null) {
-        // Update existing note
-        const updatedNotes = [...notes];
-        updatedNotes[activeNoteIndex] = currentNote;
-        setNotes(updatedNotes);
-        setIsEditing(false);
-      } else {
-        // Add new note
-        setNotes([...notes, currentNote]);
-      }
-      
-      // Reset form
-      setCurrentNote({
-        entries: [{ cue: '', content: '' }]
-      });
-      setActiveNoteIndex(null);
-    }
-  };
-
-  const editNote = (index) => {
-    setCurrentNote(notes[index]);
-    setActiveNoteIndex(index);
-    setIsEditing(true);
-  };
-
-  const deleteNote = (index) => {
-    const updatedNotes = notes.filter((_, i) => i !== index);
-    setNotes(updatedNotes);
-  };
 
   // Handle PDF file loading errors
   const handlePdfError = () => {
@@ -441,7 +400,6 @@ function Summarypage() {
               }}>
                 <textarea
                   value={entry.cue}
-                  onChange={(e) => handleEntryChange(index, 'cue', e.target.value)}
                   placeholder="Topic..."
                   onFocus={(e) => e.target.style.backgroundColor = '#444'}
                   onBlur={(e) => e.target.style.backgroundColor = '#333'}
@@ -472,7 +430,6 @@ function Summarypage() {
               }}>
                 <textarea
                   value={processContentForDisplay(entry.content)}
-                  onChange={(e) => handleEntryChange(index, 'content', e.target.value)}
                   onKeyDown={(e) => handleContentKeyDown(e, index)}
                   onFocus={(e) => e.target.style.backgroundColor = '#444'}
                   onBlur={(e) => e.target.style.backgroundColor = '#333'}
@@ -492,69 +449,12 @@ function Summarypage() {
                     transition: 'background-color 0.2s ease'
                   }}
                 />
-                <button 
-                  onClick={() => removeEntry(index)}
-                  style={{ 
-                    position: 'absolute',
-                    bottom: '5px',
-                    right: '5px',
-                    background: 'transparent',
-                    border: 'none',
-                    color: '#999',
-                    width: '20px',
-                    height: '20px',
-                    borderRadius: '10px',
-                    display: currentNote.entries.length > 1 ? 'flex' : 'none',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    zIndex: 10,
-                    fontSize: '14px',
-                    opacity: 0.8
-                  }}
-                  title="Remove this entry"
-                >
-                  ×
-                </button>
               </div>
             </div>
           ))}
-          
-          {/* Add Entry Button - Full Width Area */}
-          <div 
-            onClick={addNewEntry}
-            style={{ 
-              padding: '0.5rem', 
-              textAlign: 'center', 
-              borderTop: '1px solid #555', 
-              backgroundColor: '#333',
-              cursor: 'pointer',
-              color: '#999',
-              fontSize: '1.2rem',
-              userSelect: 'none'
-            }}
-          >
-            +
-          </div>
+
         </div>
-        
-        {/* Save Button */}
-        <button
-          onClick={saveNote}
-          style={{ 
-            padding: '0.75rem 1.5rem', 
-            backgroundColor: '#61dafb', 
-            border: 'none', 
-            borderRadius: '6px', 
-            cursor: 'pointer',
-            fontSize: '1rem',
-            fontWeight: 'bold',
-            color: '#000'
-          }}
-        >
-          {isEditing ? 'Update' : 'Save'}
-        </button>
-        
+
         {isEditing && (
           <button
             onClick={() => {
