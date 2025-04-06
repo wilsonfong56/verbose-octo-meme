@@ -66,7 +66,7 @@ function CornellNotesApp() {
     const fetchAllNotes = async () => {
       try {
         // Get session user's name
-        const userRes = await fetch("http://localhost:5000/getUser", {
+        const userRes = await fetch("http://localhost:5050/getUser", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -79,7 +79,7 @@ function CornellNotesApp() {
         const name = userData.name;
   
         // Fetch all notes for this lecture + date
-        const notesRes = await fetch("http://localhost:5000/getNote", {
+        const notesRes = await fetch("http://localhost:5050/getNote", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -94,18 +94,24 @@ function CornellNotesApp() {
         const result = await notesRes.json();
   
         if (!result || !Array.isArray(result.class_notes)) return;
-  
+
         // Filter notes belonging to the current user
         const userNotes = result.class_notes
           .filter(note => note.name === name)
 
         const extractedNotes = userNotes.map(n => n.Notebook);
-        console.log("Notes: ", extractedNotes)
-        // Add a blank one at the end
-        extractedNotes.push({ entries: [{ cue: '', content: '' }] });
-  
-        setNotes(extractedNotes);
-        setCurrentNote(extractedNotes[extractedNotes.length - 1]);  // Set last as active
+        console.log("Extracted Notes: ", extractedNotes)
+
+        const notes = extractedNotes
+            .flat()
+            .map(n => ({
+              cue: n.topic,
+              content: n.notes.join('\n'),
+            }));
+
+        console.log("Notes: ", notes)
+        setCurrentNote({entries: notes})
+
       } catch (err) {
         console.error("Failed to load notes:", err);
       }
