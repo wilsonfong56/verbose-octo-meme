@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 function Mainpage() {
   const [notes, setNotes] = useState([]);
   const [theme, setTheme] = useState('');
   const [answer, setAnswer] = useState('');
+<<<<<<< HEAD
   const [showVideo, setShowVideo] = useState(false);
   
+=======
+  const { classname, date } = useParams();
+
+>>>>>>> 28c93f9 (enrolledclass, mainpage)
   const handleSubmit = () => {
     if (theme && answer) {
       const newNote = { theme, answer };
@@ -25,6 +31,7 @@ function Mainpage() {
     <div style={{ display: 'flex', height: '100vh', fontFamily: 'Arial', color: '#fff' }}>
       {/* Left Panel - Resources */}
       <div style={{ flex: 1, backgroundColor: '#2d2d2d', padding: '2rem' }}>
+        {classname} - {date}
         <h2>Resources</h2>
         <ul style={{ lineHeight: '2rem' }}>
           <li><a href="#" style={{ color: '#61dafb' }}>Lecture Slides (PDF)</a></li>
